@@ -67,6 +67,7 @@ def str_to_int(x):
 
 
 class ProductItem(scrapy.Item):
+    '''define the data structure of prodcuts'''
     url = scrapy.Field()
     id = scrapy.Field()
     app_name = scrapy.Field()
@@ -97,12 +98,11 @@ class ProductItem(scrapy.Item):
                                  str_to_float)
     )
     sentiment = scrapy.Field()
-    n_reviews = scrapy.Field(
-        output_processor=Compose(
-            MapCompose(StripText(), lambda x: x.replace(',', ''), str_to_int),
-            max
-        )
-    )
+    recent_ratio=scrapy.Field()
+    all_ratio=scrapy.Field()
+    platform=scrapy.Field()
+    recent_view = scrapy.Field()
+    all_view = scrapy.Field()
     metascore = scrapy.Field(
         output_processor=Compose(TakeFirst(), StripText(), str_to_int)
     )

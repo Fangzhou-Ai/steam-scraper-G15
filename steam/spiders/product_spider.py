@@ -18,7 +18,7 @@ def load_product(response):
     url = url_query_cleaner(response.url, ['snr'], remove=True)
     url = canonicalize_url(url)
     loader.add_value('url', url)
-
+    print(url)
     found_id = re.findall('/app/(.*?)/', response.url)
     if found_id:
         id = found_id[0]
@@ -60,7 +60,75 @@ def load_product(response):
     sentiment = response.css('.game_review_summary').xpath(
         '../*[@itemprop="description"]/text()').extract()
     loader.add_value('sentiment', sentiment)
-    loader.add_css('n_reviews', '.responsive_hidden', re='\(([\d,]+) reviews\)')
+    # -1 : error
+    # -2 : not enough data
+    #  0 : lacking data
+    good = response.css('.user_reviews_summary_row').extract()
+    if len(good)==1:
+        recent_ratio='Lacking data'
+        good_ratio = re.findall(r"data-tooltip-text\=\"(.+?)\"", good[0])
+        all_ratio = good_ratio[0]
+    elif len(good)==2:
+        good_ratio = re.findall(r"data-tooltip-text\=\"(.+?)\"", good[0])
+        recent_ratio=good_ratio[0]
+        good_ratio_2=re.findall(r"data-tooltip-text\=\"(.+?)\"", good[1])
+        all_ratio=good_ratio_2[0]
+    else:
+        recent_ratio='wrong'
+        all_ratio='wrong'
+    loader.add_value('recent_ratio',recent_ratio)
+    loader.add_value('all_ratio',all_ratio)
+    # print(recent_ratio,all_ratio)
+
+    plat=response.css('.sysreq_contents').extract()
+    platform=[]
+    for i in plat:
+        if re.findall(r'Windows',i) or re.findall(r'win',i):
+            platform.append("Windows")
+        if re.findall(r'Mac',i) or re.findall(r'mac',i):
+            platform.append("Mac")
+        if re.findall(r'Linux',i) or re.findall(r'linux',i):
+            platform.append("Linux")
+        if re.findall(r"SteamOS",i):
+            platform.append('SteamOS')
+    P=''
+    for i in platform:
+        P=i+','+P
+    loader.add_value('platform',P)
+
+
+    reviewers = response.css('.responsive_hidden').extract()
+    if len(reviewers)==0:
+        all_view=0
+        recent_view=0
+        loader.add_value('all_view',all_view)
+        loader.add_value('recent_view',recent_view)
+    elif len(reviewers)==1:
+        recent_view=0
+        loader.add_value('recent_view', recent_view)
+        if re.findall(r"\(([\d,]+)\)",reviewers[0]):
+            all_view=re.findall(r"\(([\d,]+)\)",reviewers[0])
+        else:
+            all_view=-1
+        loader.add_value('all_view', all_view)
+    elif len(reviewers)==2:
+        if re.findall(r"\(([\d,]+)\)",reviewers[0]):
+            recent_view=re.findall(r"\(([\d,]+)\)",reviewers[0])
+        else:
+            recent_view=-1
+        loader.add_value('recent_view', recent_view)
+        if re.findall(r"\(([\d,]+)\)",reviewers[1]):
+            all_view=re.findall(r"\(([\d,]+)\)",reviewers[1])
+        else:
+            all_view=-1
+        loader.add_value('all_view', all_view)
+    else:
+        all_view = -1
+        recent_view = -1
+        loader.add_value('all_view', all_view)
+        loader.add_value('recent_view', recent_view)
+    # print(all_view,recent_view)
+    # loader.add_css('n_reviews', '.responsive_hidden', re='\(([\d,]+)\)')
 
     loader.add_xpath(
         'metascore',
