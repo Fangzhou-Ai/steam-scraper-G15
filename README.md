@@ -28,6 +28,12 @@ By the way, on macOS you can install Python 3.6 via [homebrew](https://brew.sh):
 ```
 On Ubuntu you can use [instructions posted on askubuntu.com](https://askubuntu.com/questions/865554/how-do-i-install-python-3-6-using-apt-get).
 
+Before you run it, please
+```bash
+mkdir ./output
+cd output
+touch products_all.log
+```
 ## Crawling the Products
 
 The purpose of `ProductSpider` is to discover product pages on the [Steam product listing](http://store.steampowered.com/search/?sort_by=Released_DESC) and extract useful metadata from them.
@@ -46,7 +52,10 @@ Here's some example output:
   'genres': ['Action'],
   'id': '15270',
   'metascore': 66,
-  'n_reviews': 172,
+  'All_reviews': 172,
+  'recent_reviews':12,
+  'All_ratio':97%,
+  'recent_ratio':98%,
   'price': 9.99,
   'publisher': 'Ubisoft',
   'release_date': '2005-03-28',
